@@ -1,0 +1,23 @@
+{
+  "name": "perun",
+  "version": "1.0.0",
+  "description": "A nodejs module to interact with an LND node using a REST API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateuszmp/Perun.git"
+  },
+  "keywords": [
+    "lnd",
+    "bitcoin"
+  ],
+  "author": "Michalak-Palarz Mateusz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mateuszmp/Perun/issues"
+  },
+  "homepage": "https://github.com/mateuszmp/Perun#readme"
+}
