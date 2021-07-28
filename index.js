@@ -9,8 +9,8 @@ const grpc = require('grpc');
 const protoLoader = require('@grpc/proto-loader');
 const fs = require("fs");
 
-// Due to updated ECDSA generated tls.cert we need to let gprc know that
-// we need to use that cipher suite otherwise there will be a handhsake
+// Due to updated ECDSA generated tls.cert we need to let gRPC know that
+// we need to use that cipher suite otherwise there will be a handshake
 // error when we communicate with the lnd rpc server.
 process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA'
 
@@ -31,6 +31,10 @@ let lndCert = fs.readFileSync("~/.lnd/tls.cert");
 let credentials = grpc.credentials.createSsl(lndCert);
 let lnrpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
 let lnrpc = lnrpcDescriptor.lnrpc;
+const macaroon = fs.readFileSync("LND_DIR/data/chain/bitcoin/simnet/admin.macaroon").toString('hex');
+
+//Caution! Default gRPC proxy port in lnd 12.1 is 8080!
+//Default RPC port in lnd 12.1 is 10009
 let lightning = new lnrpc.Lightning('localhost:10009', credentials);
 
 lightning.getInfo({}, function(err, response) {
