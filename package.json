@@ -2,7 +2,7 @@
   "name": "perun",
   "version": "1.0.0",
   "description": "A nodejs module to interact with an LND node using a REST API.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,7 +12,8 @@
   },
   "keywords": [
     "lnd",
-    "bitcoin"
+    "Bitcoin",
+    "REST"
   ],
   "author": "Michalak-Palarz Mateusz",
   "license": "ISC",
@@ -21,7 +22,14 @@
   },
   "homepage": "https://github.com/mateuszmp/Perun#readme",
   "devDependencies": {
-    "@grpc/proto-loader": "^0.6.4",
-    "grpc": "^1.24.11"
+
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "minimist": "^1.2.5",
+    "mongodb": "^3.6.10",
+    "mongoose": "^5.13.4",
+    "@grpc/grpc-js": "^1.3.6",
+    "@grpc/proto-loader": "^0.6.4"
   }
 }

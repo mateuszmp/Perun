@@ -9,9 +9,9 @@ A nodejs module to interact with an LND node using a REST API.
 
 Project functionality requirements:
 
-- [ ] Export transactions to CSV
+- [x] Export transactions to CSV
 - [ ] Delete old transactions
-- [ ] Create REST API
+- [x] Create REST API
 
 ---
 
