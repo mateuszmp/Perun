@@ -7,59 +7,74 @@ const fs = require("fs");
 
 let Payments = mongoose.model('Payments');
 
-Payments.get = async function () {
-    /*
-    Using gRPC for communication with lnd
+/*
+Using gRPC for communication with lnd
 
-    Working from example on lnd GitHub
-    https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
-    */
+Working from modified example on lnd GitHub
+https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
+*/
 
-    // Due to updated ECDSA generated tls.cert we need to let gRPC know that
-    // we need to use that cipher suite otherwise there will be a handshake
-    // error when we communicate with the lnd rpc server.
-    process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA'
+// Due to updated ECDSA generated tls.cert we need to let gRPC know that
+// we need to use that cipher suite otherwise there will be a handshake
+// error when we communicate with the lnd rpc server.
+process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA'
 
-    // We need to give the proto loader some extra options, otherwise the code won't
-    // fully work with lnd.
-    const loaderOptions = {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true
-    };
+// We need to give the proto loader some extra options, otherwise the code won't
+// fully work with lnd.
+const loaderOptions = {
+    keepCase: true,
+    longs: String,
+    enums: String,
+    defaults: true,
+    oneofs: true
+};
 
-    const packageDefinition = protoLoader.loadSync(__dirname + '/../../proto/lightning.proto', loaderOptions);
+const packageDefinition = protoLoader.loadSync(__dirname + '/../../proto/lightning.proto', loaderOptions);
 
-    //  Lnd cert is (should be) at ~/.lnd/tls.cert on Linux and
-    //  ~/Library/Application Support/Lnd/tls.cert on Mac
-    let lndCert = fs.readFileSync(global.lnd_path + "/tls.cert");
+//  Lnd cert is (should be) at ~/.lnd/tls.cert on Linux and
+//  ~/Library/Application Support/Lnd/tls.cert on Mac
+let lndCert = fs.readFileSync(global.lnd_path + "/tls.cert");
 
-    //in some examples called sslCreds
-    let credentials = grpc.credentials.createSsl(lndCert);
+//in some examples called sslCreds
+let credentials = grpc.credentials.createSsl(lndCert);
+let lnrpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
+let lnrpc = lnrpcDescriptor.lnrpc;
+const macaroon = fs.readFileSync(`${global.lnd_path}/data/chain/bitcoin/${global.network}/admin.macaroon`).toString('hex');
+const macaroonCreds = grpc.credentials.createFromMetadataGenerator(function(args, callback) {
+    let metadata = new grpc.Metadata();
+    metadata.add('macaroon', macaroon);
+    callback(null, metadata);
+});
+let creds = grpc.credentials.combineChannelCredentials(credentials, macaroonCreds);
+//Caution! Default gRPC proxy port in lnd 12.1 is 8080!
+//Default RPC port in lnd 12.1 is 10009
+let lightning = new lnrpc.Lightning('localhost:10009', creds);
 
-    let lnrpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
-    let lnrpc = lnrpcDescriptor.lnrpc;
-    const macaroon = fs.readFileSync(`${global.lnd_path}/data/chain/bitcoin/${global.network}/admin.macaroon`).toString('hex');
-    const macaroonCreds = grpc.credentials.createFromMetadataGenerator(function(args, callback) {
-        let metadata = new grpc.Metadata();
-        metadata.add('macaroon', macaroon);
-        callback(null, metadata);
-    });
-    let creds = grpc.credentials.combineChannelCredentials(credentials, macaroonCreds);
-    //Caution! Default gRPC proxy port in lnd 12.1 is 8080!
-    //Default RPC port in lnd 12.1 is 10009
-    let lightning = new lnrpc.Lightning('localhost:10009', creds);
+function default_val(default_val, property){
+    return (property == null) ? default_val : property
+}
+
+function default_false(property){
+    return default_val(false, property)
+}
+function default_true(property){
+    return default_val(true, property)
+}
+
+function default_zero(property){
+    return (property == null) ? 0 : property
+}
+
+Payments.get = async function (req, res) {
 
     let request = {
-        include_incomplete: true,
-        index_offset: 0,
-        max_payments: 0,
-        reversed: false,
+        include_incomplete: default_true(req.body.include_incomplete),
+        index_offset: default_zero(req.body.index_offset),
+        max_payments: default_zero(req.body.max_payments),
+        reversed: default_false(req.body.reversed),
     };
 
-    let res = await new Promise((resolve, reject) => lightning.ListPayments(request, function(err, response) {
+    return await new Promise((resolve, reject) => lightning.ListPayments(request, function(err, response) {
 
         if(err){
             console.log('Error: ' + err);
@@ -69,8 +84,8 @@ Payments.get = async function () {
 
     }))
 
-    //todo this for debugging obv remove this later lol
-    return { payments: [
+    //sample return for debugging down the line
+    /*return { payments: [
             {
                 payment_hash: "abc",
                 value: 123,
@@ -107,7 +122,7 @@ Payments.get = async function () {
             },
 
         ], first_index_offset: 0, last_index_offset: 0 }
-    //return res;
+    */
 
 }
 
@@ -118,7 +133,6 @@ exports.get = (req, res) => {
     Payments.get(req,res).then((result)=>{
         res.status(200).send(result);
     })
-
 
 };
 
@@ -173,5 +187,22 @@ exports.get_csv = (req, res) => {
 };
 
 exports.purge = (req, res) => {
+
+    console.log("Calling export.purge()");
+    let request = {
+        failed_payments_only: default_true(req.body.failed_payments_only),
+        failed_htlcs_only: default_true(req.body.failed_htlcs_only),
+    };
+
+    lightning.DeleteAllPayments(request, function(err, response) {
+
+        if(err){
+            console.log('Error: ' + err);
+        }
+
+        res.status(200).send(response);
+
+    })
+
 
 };
