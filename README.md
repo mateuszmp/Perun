@@ -9,7 +9,7 @@ Perun does **NOT** currently offer **ANY** authentication.
 All API calls, irrespective of where they originate from, will be treated as valid so long as they are valid per the API
 spec.
 
-It is thus recommended to **block incoming traffic** on the default Perun port (3000).
+It is thus recommended to **block incoming traffic** on the Perun port (3000 by default).
 
 ---
 
