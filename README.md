@@ -165,7 +165,7 @@ Deletes history of outgoing payments.
 
 ---
 
-## Code name
+## Repo name origins
 
 Perun (sometimes Grom) is the name of the god of lightning and thunder in Slavic mythology.
 

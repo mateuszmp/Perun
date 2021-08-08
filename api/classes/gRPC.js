@@ -4,30 +4,6 @@ const protoLoader = require('@grpc/proto-loader');
 const fs = require("fs");
 
 /*
-    HELPER CLASS
- */
-//  a class of static methods to easily set undefined variables to their desired default value
-class DEFAULTS{
-
-    static value(default_val, property){
-        return (property == null) ? default_val : property
-    }
-
-    static true(property){
-        return DEFAULTS.value(true, property)
-    }
-
-    static false(property){
-        return DEFAULTS.value(false, property)
-    }
-
-    static zero(property){
-        return DEFAULTS.value(0, property)
-    }
-}
-exports.DEFAULTS = DEFAULTS
-
-/*
     gRPC communication with LND
  */
 
@@ -51,7 +27,7 @@ const loaderOptions = {
 };
 
 // Load definitions of calls provided by lnd API
-const packageDefinition = protoLoader.loadSync(__dirname + '/proto/lightning.proto', loaderOptions);
+const packageDefinition = protoLoader.loadSync(__dirname + '/../proto/lightning.proto', loaderOptions);
 
 //  Lnd cert is (should be) at ~/.lnd/tls.cert on Linux and
 //  ~/Library/Application Support/Lnd/tls.cert on Mac

@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const PaymentsModel = require('../models/paymentsModel');
 let Payments = mongoose.model('Payments');
 
-const {DEFAULTS, LND} = require("../../gRPC")
-
+const {LND} = require("../../classes/gRPC")
+const {DEFAULTS} = require("../../classes/DEFAULTS")
 //  calls LND.ListPayments
 //  called by:
 //  - exports.get
