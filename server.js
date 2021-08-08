@@ -27,6 +27,8 @@ function report_missing_argument(argument, acceptable_arguments){
 
 // check if required arguments are set and assign them to the global variable
 // if missing print the appropriate information
+
+// check for network argument
 if(Object.keys(args).includes("network")){
     global.network = args['network']
 }
@@ -35,6 +37,7 @@ else{
 }
 console.log("network: " + global.network);
 
+// check of lnd_path argument
 if(Object.keys(args).includes("lnd_path")){
     global.lnd_path = args['lnd_path']
 }

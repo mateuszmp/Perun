@@ -23,7 +23,59 @@ Initial project functionality requirements:
 - [x] Create a REST API which allows to:
   - [x] Export transactions to CSV
   - [x] Delete old transactions
+  
+---
 
+## Requirements
+
+Perun requires your system to already have the following installed:
+- LND (developed with v0.12.1)
+- npm (developed with v6.14.13)
+- nodejs (developed with v14.17.3)
+
+By default, Perun will try to connect to LND at `localhost:10009`
+
+---
+
+## Installation and usage
+
+0. Ensure you have met the requirements from the previous section.
+
+
+1. Clone the repo:
+
+`git clone https://github.com/mateuszmp/Perun.git`
+
+2. Navigate to the cloned repo:
+
+`cd Perun`
+
+3. Install the dependencies:
+
+`npm install`
+
+4. Start Perun with: 
+
+`npm start -- --network=<testnet or mainnet> --lnd_path=/home/<YOUR USERNAME>/.lnd`
+
+---
+
+## Arguments
+
+Perun accepts command line arguments provided they are preceded with `--`.
+
+### Example 
+#### Correct
+`npm start -- --network=testnet --lnd_path=/home/John/.lnd`
+
+#### Incorrect
+`npm start --network=testnet --lnd_path=/home/John/.lnd`
+
+### Supported arguments
+|Argument     |Description                                                                               |
+|-------------|------------------------------------------------------------------------------------------|
+|`--network=` |`mainnet` or `testnet`. Used to pick the right macaroon.                                  |
+|`--lnd_path=`|The path of the `.lnd` directory. Used to get the credentials for the connection with LND.|
 
 ---
 
@@ -109,7 +161,7 @@ Deletes history of outgoing payments.
 |failed_htlcs_only      |`true`         |
 
 ####    Response
-None
+`{}`
 
 ---
 
