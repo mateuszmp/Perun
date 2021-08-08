@@ -76,6 +76,7 @@ Perun accepts command line arguments provided they are preceded with `--`.
 |-------------|------------------------------------------------------------------------------------------|
 |`--network=` |`mainnet` or `testnet`. Used to pick the right macaroon.                                  |
 |`--lnd_path=`|The path of the `.lnd` directory. Used to get the credentials for the connection with LND.|
+|`--port=`    |Port on which to listen for incoming connections. Default is 3000                         |
 
 ---
 

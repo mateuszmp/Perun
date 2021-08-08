@@ -4,7 +4,7 @@ let args = new ARGUMENTS()
 // initialize the express web framework
 const express = require('express'),
     app = express(),
-    port = 3000;
+    port = global.port;
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
