@@ -1,80 +1,24 @@
 'use strict';
 const mongoose = require('mongoose');
 const PaymentsModel = require('../models/paymentsModel');
-const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
-const fs = require("fs");
-
 let Payments = mongoose.model('Payments');
 
-/*
-Using gRPC for communication with lnd
+const {DEFAULTS, LND} = require("../../gRPC")
 
-Working from modified example on lnd GitHub
-https://github.com/lightningnetwork/lnd/blob/master/docs/grpc/javascript.md
-*/
-
-// Due to updated ECDSA generated tls.cert we need to let gRPC know that
-// we need to use that cipher suite otherwise there will be a handshake
-// error when we communicate with the lnd rpc server.
-process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA'
-
-// We need to give the proto loader some extra options, otherwise the code won't
-// fully work with lnd.
-const loaderOptions = {
-    keepCase: true,
-    longs: String,
-    enums: String,
-    defaults: true,
-    oneofs: true
-};
-
-const packageDefinition = protoLoader.loadSync(__dirname + '/../../proto/lightning.proto', loaderOptions);
-
-//  Lnd cert is (should be) at ~/.lnd/tls.cert on Linux and
-//  ~/Library/Application Support/Lnd/tls.cert on Mac
-let lndCert = fs.readFileSync(global.lnd_path + "/tls.cert");
-
-//in some examples called sslCreds
-let credentials = grpc.credentials.createSsl(lndCert);
-let lnrpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
-let lnrpc = lnrpcDescriptor.lnrpc;
-const macaroon = fs.readFileSync(`${global.lnd_path}/data/chain/bitcoin/${global.network}/admin.macaroon`).toString('hex');
-const macaroonCreds = grpc.credentials.createFromMetadataGenerator(function(args, callback) {
-    let metadata = new grpc.Metadata();
-    metadata.add('macaroon', macaroon);
-    callback(null, metadata);
-});
-let creds = grpc.credentials.combineChannelCredentials(credentials, macaroonCreds);
-//Caution! Default gRPC proxy port in lnd 12.1 is 8080!
-//Default RPC port in lnd 12.1 is 10009
-let lightning = new lnrpc.Lightning('localhost:10009', creds);
-
-function default_val(default_val, property){
-    return (property == null) ? default_val : property
-}
-
-function default_false(property){
-    return default_val(false, property)
-}
-function default_true(property){
-    return default_val(true, property)
-}
-
-function default_zero(property){
-    return (property == null) ? 0 : property
-}
-
+//  calls LND.ListPayments
+//  called by:
+//  - exports.get
+//  - exports.get_csv
 Payments.get = async function (req, res) {
 
     let request = {
-        include_incomplete: default_true(req.body.include_incomplete),
-        index_offset: default_zero(req.body.index_offset),
-        max_payments: default_zero(req.body.max_payments),
-        reversed: default_false(req.body.reversed),
+        include_incomplete: DEFAULTS.true(req.body.include_incomplete),
+        index_offset:       DEFAULTS.zero(req.body.index_offset),
+        max_payments:       DEFAULTS.zero(req.body.max_payments),
+        reversed:           DEFAULTS.false(req.body.reversed),
     };
 
-    return await new Promise((resolve, reject) => lightning.ListPayments(request, function(err, response) {
+    return await new Promise((resolve, reject) => LND.ListPayments(request, function(err, response) {
 
         if(err){
             console.log('Error: ' + err);
@@ -126,6 +70,9 @@ Payments.get = async function (req, res) {
 
 }
 
+//  returns JSON with outgoing payments
+//  calls Payments.get
+//  returns from its response as is
 exports.get = (req, res) => {
 
     console.log("Calling export.get()");
@@ -136,6 +83,9 @@ exports.get = (req, res) => {
 
 };
 
+//  returns CSV with outgoing payments
+//  calls Payments.get
+//  loops through response to omit some fields and format the rest as CSV
 exports.get_csv = (req, res) => {
 
     console.log("Calling export.get_csv()");
@@ -143,6 +93,7 @@ exports.get_csv = (req, res) => {
     Payments.get(req,res).then((result)=>{
 
         let flat_list = []
+        //  CSV header
         flat_list[0] = [
             "payment_hash",
             "payment_preimage",
@@ -156,7 +107,7 @@ exports.get_csv = (req, res) => {
         ];
 
         let payments = result.payments;
-
+        //  copy the fields we care about to the array for later processing into CSV
         for(let i = 0; i < payments.length; i++){
             flat_list.push([[
                 payments[i].payment_hash,
@@ -171,6 +122,7 @@ exports.get_csv = (req, res) => {
             ]])
         }
 
+        // process the flat_list array into a CSV
         let csvContent;
         let lineArray = [];
         flat_list.forEach(function (row, index) {
@@ -180,21 +132,24 @@ exports.get_csv = (req, res) => {
         });
         csvContent = lineArray.join("\n");
 
-
         res.status(200).send(csvContent);
     })
 
 };
 
-exports.purge = (req, res) => {
 
-    console.log("Calling export.purge()");
+// Removes history of outgoing payments
+// calls LND.DeleteAllPayments
+// returns its response but there ought to be none as per LND API docs
+exports.delete = (req, res) => {
+
+    console.log("Calling export.delete()");
     let request = {
-        failed_payments_only: default_true(req.body.failed_payments_only),
-        failed_htlcs_only: default_true(req.body.failed_htlcs_only),
+        failed_payments_only:   DEFAULTS.true(req.body.failed_payments_only),
+        failed_htlcs_only:      DEFAULTS.true(req.body.failed_htlcs_only),
     };
 
-    lightning.DeleteAllPayments(request, function(err, response) {
+    LND.DeleteAllPayments(request, function(err, response) {
 
         if(err){
             console.log('Error: ' + err);
