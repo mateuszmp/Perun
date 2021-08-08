@@ -20,9 +20,10 @@ A nodejs module to interact with an LND node using a REST API.
 
 Initial project functionality requirements:
 
-- [x] Export transactions to CSV
-- [x] Delete old transactions
-- [x] Create REST API
+- [x] Create a REST API which allows to:
+  - [x] Export transactions to CSV
+  - [x] Delete old transactions
+
 
 ---
 
@@ -52,10 +53,10 @@ Returns JSON of outgoing payments.
 ####    Parameters
 |Name               |Default value  |
 |-------------------|---------------|
-|include_incomplete |true           |
-|index_offset       |0              |
-|max_payments       |0              |
-|offset             |false          |
+|include_incomplete |`true`         |
+|index_offset       |`0`            |
+|max_payments       |`0`            |
+|offset             |`false`        |
 
 ####    Response
 Returns a JSON consisting of:
@@ -104,8 +105,8 @@ Deletes history of outgoing payments.
 ####    Parameters
 |Name                   |Default value  |
 |-----------------------|---------------|
-|failed_payments_only   |true           |
-|failed_htlcs_only      |true           |
+|failed_payments_only   |`true`         |
+|failed_htlcs_only      |`true`         |
 
 ####    Response
 None
