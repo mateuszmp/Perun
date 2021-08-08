@@ -8,64 +8,64 @@ const PaymentsSchema = new Schema({
     //  https://api.lightning.community/?shell#lnrpc-payment
     payments: {
         type: [{
-            payment_hash:{
+            payment_hash: {
                 type: String
             },
-            value:{
+            value: {
                 //int64
                 //deprecated
                 type: Number
             },
-            creation_date:{
+            creation_date: {
                 //int64
                 //deprecated
                 type: Number
             },
-            fee:{
+            fee: {
                 //int64
                 //deprecated
                 type: Number
             },
-            payment_preimage:{
+            payment_preimage: {
                 type: String
             },
-            value_sat:{
+            value_sat: {
                 //int64
                 type: Number
             },
-            value_msat:{
+            value_msat: {
                 //int64
                 type: Number
             },
-            payment_request:{
+            payment_request: {
                 type: String
             },
-            status:{
+            status: {
                 //lnd docs don't have schema?
                 any: {}
             },
-            fee_sat:{
+            fee_sat: {
                 //int64
                 type: Number
             },
-            fee_msat:{
+            fee_msat: {
                 //int64
                 type: Number
             },
-            creation_time_ns:{
+            creation_time_ns: {
                 //int64
                 type: Number
             },
-            htlcs:{
+            htlcs: {
                 //array of schemas from:
                 //  https://api.lightning.community/?shell#lnrpc-htlcattempt
                 any: {}
             },
-            payment_index:{
+            payment_index: {
                 //uint64
                 type: Number
             },
-            failure_reason:{
+            failure_reason: {
                 any: {}
             }
         }],

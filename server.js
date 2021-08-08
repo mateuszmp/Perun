@@ -6,7 +6,7 @@ const express = require('express'),
     app = express(),
     port = global.port;
 
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({extended: true}))
 app.use(express.json());
 
 // import defined routes
@@ -14,7 +14,7 @@ const routes = require('./api/payments/paymentsRoutes');
 routes(app);
 
 // return 404 if called endpoint is not found
-app.get('*', (req, res)=>{
+app.get('*', (req, res) => {
     res.status(404).send({url: req.originalUrl + ' not found'})
 })
 

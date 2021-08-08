@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/mateuszmp/Perun#readme",
   "devDependencies": {
-
   },
   "dependencies": {
     "express": "^4.17.1",

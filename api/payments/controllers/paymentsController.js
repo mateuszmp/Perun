@@ -13,14 +13,14 @@ Payments.get = async function (req, res) {
 
     let request = {
         include_incomplete: DEFAULTS.true(req.body.include_incomplete),
-        index_offset:       DEFAULTS.zero(req.body.index_offset),
-        max_payments:       DEFAULTS.zero(req.body.max_payments),
-        reversed:           DEFAULTS.false(req.body.reversed),
+        index_offset: DEFAULTS.zero(req.body.index_offset),
+        max_payments: DEFAULTS.zero(req.body.max_payments),
+        reversed: DEFAULTS.false(req.body.reversed),
     };
 
-    return await new Promise((resolve, reject) => LND.ListPayments(request, function(err, response) {
+    return await new Promise((resolve, reject) => LND.ListPayments(request, function (err, response) {
 
-        if(err){
+        if (err) {
             console.log('Error: ' + err);
         }
 
@@ -77,7 +77,7 @@ exports.get = (req, res) => {
 
     console.log("Calling export.get()");
 
-    Payments.get(req,res).then((result)=>{
+    Payments.get(req, res).then((result) => {
         res.status(200).send(result);
     })
 
@@ -90,7 +90,7 @@ exports.get_csv = (req, res) => {
 
     console.log("Calling export.get_csv()");
 
-    Payments.get(req,res).then((result)=>{
+    Payments.get(req, res).then((result) => {
 
         let flat_list = []
         //  CSV header
@@ -108,7 +108,7 @@ exports.get_csv = (req, res) => {
 
         let payments = result.payments;
         //  copy the fields we care about to the array for later processing into CSV
-        for(let i = 0; i < payments.length; i++){
+        for (let i = 0; i < payments.length; i++) {
             flat_list.push([[
                 payments[i].payment_hash,
                 payments[i].payment_preimage,
@@ -145,13 +145,13 @@ exports.delete = (req, res) => {
 
     console.log("Calling export.delete()");
     let request = {
-        failed_payments_only:   DEFAULTS.true(req.body.failed_payments_only),
-        failed_htlcs_only:      DEFAULTS.true(req.body.failed_htlcs_only),
+        failed_payments_only: DEFAULTS.true(req.body.failed_payments_only),
+        failed_htlcs_only: DEFAULTS.true(req.body.failed_htlcs_only),
     };
 
-    LND.DeleteAllPayments(request, function(err, response) {
+    LND.DeleteAllPayments(request, function (err, response) {
 
-        if(err){
+        if (err) {
             console.log('Error: ' + err);
         }
 

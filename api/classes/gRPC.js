@@ -38,7 +38,7 @@ let credentials = grpc.credentials.createSsl(lndCert);
 let lnrpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
 let lnrpc = lnrpcDescriptor.lnrpc;
 const macaroon = fs.readFileSync(`${global.lnd_path}/data/chain/bitcoin/${global.network}/admin.macaroon`).toString('hex');
-const macaroonCreds = grpc.credentials.createFromMetadataGenerator(function(args, callback) {
+const macaroonCreds = grpc.credentials.createFromMetadataGenerator(function (args, callback) {
     let metadata = new grpc.Metadata();
     metadata.add('macaroon', macaroon);
     callback(null, metadata);
@@ -47,5 +47,5 @@ let creds = grpc.credentials.combineChannelCredentials(credentials, macaroonCred
 //Caution! Default gRPC proxy port in lnd 12.1 is 8080!
 //Default RPC port in lnd 12.1 is 10009
 // assuming LND is running on localhost
-let lightning = new lnrpc.Lightning('localhost:10009', creds);
+let lightning = new lnrpc.Lightning(`${global.lnd_hostname}:${global.lnd_port}`, creds);
 exports.LND = lightning

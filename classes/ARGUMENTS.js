@@ -1,5 +1,5 @@
 //  a class of static methods to easily set undefined variables to their desired default value
-class ARGUMENTS{
+class ARGUMENTS {
 
     constructor() {
 
@@ -17,34 +17,34 @@ class ARGUMENTS{
         // todo arguments and acceptable_options should be stored in some database or config file
         this.check_for_argument("network", ["testnet", "mainnet"])
         this.check_for_argument("lnd_path", ["/home/USER_NAME/.lnd", "<lnd directory>"])
+        this.check_for_argument("lnd_hostname", ["localhost", "<other valid hostname>"], "localhost")
+        this.check_for_argument("lnd_port", [10009, "<other valid port>"], 10009)
         this.check_for_argument("port", [3000, "<other valid port>"], 3000)
         console.log("");
 
     }
 
-    check_for_argument(argument, acceptable_options, default_value){
+    check_for_argument(argument, acceptable_options, default_value) {
 
         // check if required arguments are set and assign them to the global variable
         // if missing print the appropriate information
-        if(Object.keys(this.args).includes(argument)){
+        if (Object.keys(this.args).includes(argument)) {
             global[argument] = this.args[argument]
-        }
-        else if(default_value == null){
+        } else if (default_value == null) {
             this.report_missing_required(argument, acceptable_options)
-        }
-        else{
+        } else {
             global[argument] = default_value
         }
         console.log(argument + ": " + global[argument]);
     }
 
 
-    report_missing_required(argument, acceptable_options){
+    report_missing_required(argument, acceptable_options) {
         console.log("")
         console.log("ERROR: MISSING REQUIRED ARGUMENT!")
         console.log(`Specify --${argument} argument.`)
         console.log(`Try again with --${argument} set to one of the following:`)
-        acceptable_options.forEach((param)=>{
+        acceptable_options.forEach((param) => {
             console.log(`\t${param}`)
         })
         console.log("")
@@ -56,4 +56,5 @@ class ARGUMENTS{
     }
 
 }
+
 exports.ARGUMENTS = ARGUMENTS
